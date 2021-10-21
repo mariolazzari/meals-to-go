@@ -1,48 +1,53 @@
+import { StatusBar as ExpoStatusBar } from "expo-status-bar";
 import React from "react";
+import { ThemeProvider } from "styled-components/native";
+import * as firebase from "firebase";
+
 import {
-  StyleSheet,
-  Text,
-  View,
-  SafeAreaView,
-  Platform,
-  StatusBar,
-} from "react-native";
-import { Searchbar } from "react-native-paper";
+  useFonts as useOswald,
+  Oswald_400Regular,
+} from "@expo-google-fonts/oswald";
+import { useFonts as useLato, Lato_400Regular } from "@expo-google-fonts/lato";
 
-const isAndroid = Platform.OS === "android";
+import { theme } from "./src/infrastructure/theme";
+import { Navigation } from "./src/infrastructure/navigation";
 
-const App = () => {
-  return (
-    <>
-      <StatusBar />
+import { AuthenticationContextProvider } from "./src/services/authentication/authentication.context";
 
-      <SafeAreaView style={styles.container}>
-        <View style={styles.searchContainer}>
-          <Searchbar />
-        </View>
-
-        <View style={styles.listContainer}>
-          <Text>Home</Text>
-        </View>
-      </SafeAreaView>
-    </>
-  );
+const firebaseConfig = {
+  apiKey: "<fill in your own>",
+  authDomain: "<fill in your own>",
+  projectId: "<fill in your own>",
+  storageBucket: "<fill in your own>",
+  messagingSenderId: "<fill in your own>",
+  appId: "<fill in your own>",
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    marginTop: isAndroid ? StatusBar.currentHeight : 0,
-  },
-  searchContainer: {
-    padding: 16,
-  },
-  listContainer: {
-    padding: 16,
-    backgroundColor: "blue",
-    flex: 1,
-  },
-});
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
 
-export default App;
+export default function App() {
+  const [oswaldLoaded] = useOswald({
+    Oswald_400Regular,
+  });
+
+  const [latoLoaded] = useLato({
+    Lato_400Regular,
+  });
+
+  if (!oswaldLoaded || !latoLoaded) {
+    return null;
+  }
+
+  return (
+    <>
+      <ThemeProvider theme={theme}>
+        <AuthenticationContextProvider>
+          <Navigation />
+        </AuthenticationContextProvider>
+      </ThemeProvider>
+      <ExpoStatusBar style="auto" />
+    </>
+  );
+}
